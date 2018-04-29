@@ -1,6 +1,10 @@
 import numpy as np
 import cv2
 
+# http://lab.toutiao.com/index.php/2017/04/04/farneback-guangliusuanfaxiangjieyu-calcopticalflowfarneback-yuanmafenxi.html
+
+input('Press Enter to Start')
+
 def maskByROI_(frame, x, y, w, h):
 	#x, y = 190, 220
 	#w, h = 190, 200
@@ -17,22 +21,23 @@ def maskByROI_(frame, x, y, w, h):
 	maskedImg = frame[y:y+h+1,x:x+w+1]
 	return maskedImg
 
-cap = cv2.VideoCapture(r'D:\Users\ASUS\Desktop\fish\fish.mpeg')
+cap = cv2.VideoCapture(r'D:\Users\ASUS\Desktop\fish\0423-1.avi')
 ret, frame1 = cap.read()
 
-frame1 = maskByROI_(frame1, 128, 96, 480, 384)
+frame1 = maskByROI_(frame1, 0, 20, 620, 460)
 
 prvs = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
 hsv = np.zeros_like(frame1)
 hsv[...,1] = 127
 
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter(r'D:\Users\ASUS\Desktop\fish\fish-out.avi',fourcc, 20.0, (480, 384))
+#out = cv2.VideoWriter(r'D:\Users\ASUS\Desktop\fish\fish-out.avi',fourcc, 20.0, (480, 384))
 
 
 while(1):
 	ret,frame2_ = cap.read()
-	frame2 = maskByROI_(frame2_, 128, 96, 480, 384)
+	
+	frame2 =  maskByROI_(frame2_, 0, 20, 620, 460)
 	next = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
 	
 	flow = cv2.calcOpticalFlowFarneback(prvs, next, None, 0.5, 3, 15, 3, 5, 1.2, 0)
@@ -43,15 +48,14 @@ while(1):
 	bgr = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
 	
 	output = cv2.addWeighted(frame2, 1, bgr, 0.8, 0)
-	x, y = 128, 96
-	w, h = 480, 384
+
 	#output = maskByROI_(output, x, y, w, h)
 	
 
 	cv2.imshow('origin', frame2_)
 	#cv2.imshow('frame2', bgr)
 	cv2.imshow('output', output)
-	out.write(output)
+	#out.write(output)
 	
 	k = cv2.waitKey(1) & 0xff
 	if k == 27: break
